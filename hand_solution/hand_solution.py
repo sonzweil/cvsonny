@@ -1,5 +1,6 @@
 import cv2
 import time
+import math
 
 from mediapipe.python.solutions.hands import Hands
 from mediapipe.python.solutions.hands import HandLandmark
@@ -115,7 +116,14 @@ class Hand:
         return self.num_of_fingers_up
     def get_selected_landmark(self, selected_landmark):
         return self.landmarks[selected_landmark]
-
+    def get_hand_distance(self):
+        _, x1, y1 = self.get_selected_landmark(HandLandmark.THUMB_TIP)
+        _, x2, y2 = self.get_selected_landmark(HandLandmark.PINKY_TIP)
+        length = math.hypot(x2 - x1, y2 - y1)
+        actual_width = 8.5
+        focal_length = 650
+        distance = actual_width*focal_length/length
+        return distance
 
 
 class HandProcessing(Hands):
@@ -191,6 +199,7 @@ def main():
             hand.draw_landmarks(image)
             hand.draw_bounding_box(image)
             print(hand.get_selected_landmark(HandLandmark.INDEX_FINGER_TIP))
+            print(hand.get_hand_distance())
 
         cur_time = time.time()
         fps = 1 / (cur_time - prev_time)
